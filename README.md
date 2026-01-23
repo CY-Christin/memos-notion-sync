@@ -24,7 +24,7 @@
   `Created`
   `Memos ID`
 
-[img](./image/notion-dataset.png)
+![img](./image/notion-dataset.png)
 
 - 地址栏中截图的部分就是需要的 NOTION_DATABASE_ID（数据库 ID）
 - 给集成添加数据库权限，可以在集成中添加也可以在数据库页面添加
