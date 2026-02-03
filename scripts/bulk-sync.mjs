@@ -21,6 +21,7 @@ const MEMOS_API_TOKEN = '';
 const NOTION_TOKEN = '';
 const NOTION_DATABASE_ID = '';
 
+const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN || '';
 const MEMOS_FILTER = process.env.MEMOS_FILTER;
 const MEMOS_PAGE_SIZE = Number.parseInt(process.env.MEMOS_PAGE_SIZE || '10', 10);
 const NOTION_DELAY_MS = Number.parseInt(process.env.NOTION_DELAY_MS || '200', 10);
@@ -57,7 +58,7 @@ async function main() {
 		console.log('列表附件图片数量:', attachmentsFromList.length);
 
 		const imagesSet = new Set([...contentImages, ...attachmentsFromList]);
-		const images = Array.from(imagesSet);
+		const images = Array.from(imagesSet).map(url => convertToPublicR2Url(url));
 		console.log('图片去重后数量:', images.length);
 
 		try {
@@ -260,6 +261,20 @@ function parseMemosContent(content) {
 	}
 	const text = (content || '').replace(imageRegex, '').trim();
 	return { text, images };
+}
+
+function convertToPublicR2Url(url) {
+	if (!R2_PUBLIC_DOMAIN) return url;
+	try {
+		const parsed = new URL(url);
+		if (parsed.hostname.endsWith('.r2.cloudflarestorage.com')) {
+			const base = R2_PUBLIC_DOMAIN.replace(/\/$/, '');
+			return `${base}${parsed.pathname}`;
+		}
+	} catch {
+		// URL 解析失败，原样返回
+	}
+	return url;
 }
 
 function extractAttachmentUrls(attachments) {

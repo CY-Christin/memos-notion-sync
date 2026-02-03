@@ -61,7 +61,7 @@ export default {
 			fetchedAttachmentImages.forEach(url => imagesSet.add(url));
 			console.log('API 拉取附件图片数量:', fetchedAttachmentImages.length, 'URLs:', fetchedAttachmentImages);
 
-			const images = Array.from(imagesSet);
+			const images = Array.from(imagesSet).map(url => convertToPublicR2Url(url, env.R2_PUBLIC_DOMAIN));
 			console.log('最终图片去重后数量:', images.length);
 			console.log('最终图片URLs:', images);
 
@@ -259,6 +259,23 @@ async function fetchAttachmentImagesAfterDelay(memo, env, delayMs) {
 	const attachments = data?.attachments || [];
 	console.log('拉取到附件数量:', attachments.length, 'attachments:', attachments);
 	return extractAttachmentUrls(attachments);
+}
+
+// 把 R2 签名 URL 转换为公网可访问的 URL
+// 签名 URL 示例: https://memos.xxx.r2.cloudflarestorage.com/assets/file.jpg?X-Amz-Algorithm=...
+// 公网 URL 示例: https://pub-xxx.r2.dev/assets/file.jpg
+function convertToPublicR2Url(url, publicDomain) {
+	if (!publicDomain) return url;
+	try {
+		const parsed = new URL(url);
+		if (parsed.hostname.endsWith('.r2.cloudflarestorage.com')) {
+			const base = publicDomain.replace(/\/$/, '');
+			return `${base}${parsed.pathname}`;
+		}
+	} catch {
+		// URL 解析失败，原样返回
+	}
+	return url;
 }
 
 // 校验 Memos 配置，确保 base/token 基本合法
