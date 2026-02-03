@@ -34,12 +34,30 @@
 - 在设置 - 我的账号 - 访问令牌中 新建一个令牌（MEMOS_API_TOKEN）
 - worker 部署之后可以获取到一个地址，把地址填入 设置 - 偏好设置 - Webhooks 中，地址应该类似（xxx.xxx.workers.dev）
 
+## R2 公有域名配置
+Memos 返回的附件 URL 是带签名的 R2 私有链接，签名过期后图片将无法访问。配置 R2 公有域名后，同步时会自动将签名 URL 转换为永久可访问的公网 URL。
+
+转换示例：
+```
+# 签名 URL（会过期）
+https://memos.xxx.r2.cloudflarestorage.com/assets/file.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Signature=...
+
+# 公网 URL（永久可访问）
+https://pub-xxx.r2.dev/assets/file.jpg
+```
+
+- **Worker**：在环境变量中配置 `R2_PUBLIC_DOMAIN`（如 `https://pub-xxx.r2.dev`）
+- **批量同步脚本**：直接修改 `scripts/bulk-sync.mjs` 顶部的 `R2_PUBLIC_DOMAIN` 常量
+
+> 如果不配置，图片 URL 将保持原样（带签名的 R2 链接）。
+
 ## Worker（Webhook）配置
 在 Worker 里配置环境变量：
 - `NOTION_TOKEN`
 - `NOTION_DATABASE_ID`
 - `MEMOS_API_BASE`（如 `https://your-memos.com/api/v1`）
 - `MEMOS_API_TOKEN`
+- `R2_PUBLIC_DOMAIN`（R2 公有域名，如 `https://pub-xxx.r2.dev`，可选）
 > 可以在本地使用 wrangler push NOTION_TOKEN 等命令添加私密环境变量，也可以手动在后台配置
 
 本地开发：
@@ -54,6 +72,13 @@ npm run deploy
 
 ## 批量同步（一次性脚本）
 脚本路径：`scripts/bulk-sync.mjs`。分页拉取 memos，并将 memo 写入 Notion。
+
+使用前需修改脚本顶部的常量：
+- `MEMOS_API_BASE` — Memos API 地址
+- `MEMOS_API_TOKEN` — Memos 访问令牌
+- `NOTION_TOKEN` — Notion Integration Token
+- `NOTION_DATABASE_ID` — Notion 数据库 ID
+- `R2_PUBLIC_DOMAIN` — R2 公有域名（如 `https://pub-xxx.r2.dev`）
 
 运行：
 ```bash

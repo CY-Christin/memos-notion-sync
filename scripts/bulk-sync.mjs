@@ -20,8 +20,9 @@ const MEMOS_API_BASE = '';
 const MEMOS_API_TOKEN = '';
 const NOTION_TOKEN = '';
 const NOTION_DATABASE_ID = '';
-
-const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN || '';
+// R2 公有域名，用于将 R2 签名 URL 转换为永久可访问的公网 URL
+// 示例: https://pub-xxx.r2.dev
+const R2_PUBLIC_DOMAIN = '';
 const MEMOS_FILTER = process.env.MEMOS_FILTER;
 const MEMOS_PAGE_SIZE = Number.parseInt(process.env.MEMOS_PAGE_SIZE || '10', 10);
 const NOTION_DELAY_MS = Number.parseInt(process.env.NOTION_DELAY_MS || '200', 10);
